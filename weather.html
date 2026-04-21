@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Global Climate Archive | Historical Weather 1940-Present</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2b38 0%, #1a4a5f 100%);
+            font-family: 'Inter', sans-serif;
+            padding: 1.5rem;
+            color: #eef4ff;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd966, #ffb347);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            color: #cde5f0;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #ffd966;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 0.8rem;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        input {
+            background: white;
+            color: #1a2c3e;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ffb347, #ff8c00);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            margin-top: 1.5rem;
+            padding: 0.9rem;
+            font-size: 1rem;
+        }
+
+        /* Current Weather Card */
+        .current-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            color: #1a2c3e;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .current-card.active {
+            display: block;
+        }
+
+        .current-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .location-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .temp-large {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+
+        .weather-details {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Date Range Picker */
+        .date-range-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .date-pickers {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .date-pickers .input-group {
+            flex: 1;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0.3rem;
+        }
+
+        /* History Table */
+        .history-wrapper {
+            background: rgba(255,255,255,0.95);
+            border-radius: 1rem;
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #1a2c3e;
+        }
+
+        .history-table th {
+            background: #2c7da0;
+            color: white;
+            padding: 0.8rem;
+            font-weight: 600;
+        }
+
+        .history-table td {
+            padding: 0.7rem 0.8rem;
+            border-bottom: 1px solid #e0e8f0;
+        }
+
+        .history-table tr:hover {
+            background: #f0f8ff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-msg {
+            background: rgba(255,80,80,0.9);
+            padding: 1rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+            color: white;
+        }
+
+        .info-note {
+            text-align: center;
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .hero h1 { font-size: 1.6rem; }
+            .location-name { font-size: 1.3rem; }
+            .temp-large { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="hero">
+        <h1>🌍 Global Climate Archive</h1>
+        <p>Real historical weather data • Any location • 1940 to today</p>
+        <div class="badge">✓ Powered by Open-Meteo (ERA5 reanalysis)</div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="input-row">
+            <div class="input-group">
+                <label>📍 City name</label>
+                <input type="text" id="cityInput" placeholder="e.g., Paris, Tokyo, Cairo, Rome" value="Paris">
+            </div>
+            <div class="input-group">
+                <label>🌍 Country (optional)</label>
+                <input type="text" id="countryInput" placeholder="e.g., France, Japan, Egypt">
+            </div>
+        </div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>🗺️ Or use coordinates</label>
+                <input type="text" id="coordInput" placeholder="Latitude, Longitude (e.g., 48.8566, 2.3522)">
+            </div>
+        </div>
+        <button class="search-btn" id="searchBtn">🔍 Get Weather & Historical Data</button>
+
+        <!-- Current Weather Display -->
+        <div id="currentWeather" class="current-card"></div>
+    </div>
+
+    <!-- Historical Data Section -->
+    <div class="date-range-section" id="historicalSection" style="display: none;">
+        <h3>📅 Select Date Range (1940 to present)</h3>
+        <div class="date-pickers">
+            <div class="input-group">
+                <label>Start date</label>
+                <input type="date" id="startDate" value="1960-01-01">
+            </div>
+            <div class="input-group">
+                <label>End date</label>
+                <input type="date" id="endDate">
+            </div>
+        </div>
+        <button id="fetchHistoricalBtn" style="margin-top: 1rem; background: linear-gradient(135deg, #2c7da0, #1a5a7a);">📊 Load Historical Data</button>
+    </div>
+
+    <!-- Results Area -->
+    <div id="resultsArea"></div>
+    <div class="info-note">
+        📌 Data source: Open-Meteo Historical API (ERA5) • Real recorded/ reanalysis data from 1940 onwards • Free & no API key required
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentLat = null;
+    let currentLon = null;
+    let currentLocationName = "";
+
+    // DOM elements
+    const cityInput = document.getElementById('cityInput');
+    const countryInput = document.getElementById('countryInput');
+    const coordInput = document.getElementById('coordInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const currentWeatherDiv = document.getElementById('currentWeather');
+    const historicalSection = document.getElementById('historicalSection');
+    const resultsArea = document.getElementById('resultsArea');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const fetchHistoricalBtn = document.getElementById('fetchHistoricalBtn');
+
+    // Set default end date to today
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    endDateInput.value = `${yyyy}-${mm}-${dd}`;
+
+    // Helper: Geocode city name to coordinates
+    async function geocodeCity(city, country = "") {
+        let query = city;
+        if (country) query += `, ${country}`;
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+                const result = data.results[0];
+                return {
+                    lat: result.latitude,
+                    lon: result.longitude,
+                    name: `${result.name}, ${result.country}`
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error("Geocoding error:", error);
+            return null;
+        }
+    }
+
+    // Parse coordinates input
+    function parseCoordinates(coordStr) {
+        const parts = coordStr.split(',');
+        if (parts.length === 2) {
+            const lat = parseFloat(parts[0].trim());
+            const lon = parseFloat(parts[1].trim());
+            if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+                return { lat, lon };
+            }
+        }
+        return null;
+    }
+
+    // Fetch CURRENT weather
+    async function fetchCurrentWeather(lat, lon, locationName) {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.current_weather) {
+                const current = data.current_weather;
+                return {
+                    temp: current.temperature,
+                    wind: current.windspeed,
+                    weatherCode: current.weathercode,
+                    time: current.time
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error("Current weather error:", error);
+            return null;
+        }
+    }
+
+    function getWeatherDescription(code) {
+        const codes = {
+            0: "☀️ Clear sky",
+            1: "🌤️ Mainly clear",
+            2: "⛅ Partly cloudy",
+            3: "☁️ Overcast",
+            45: "🌫️ Fog",
+            51: "🌧️ Light drizzle",
+            61: "🌧️ Rain",
+            71: "❄️ Snow",
+            80: "🌧️ Rain showers"
+        };
+        return codes[code] || "🌡️ Variable";
+    }
+
+    // Display current weather card
+    function displayCurrentWeather(locationName, weatherData) {
+        if (!weatherData) {
+            currentWeatherDiv.innerHTML = `<div class="error-msg">⚠️ Could not fetch current weather for ${locationName}</div>`;
+            currentWeatherDiv.classList.add('active');
+            return;
+        }
+        const condition = getWeatherDescription(weatherData.weatherCode);
+        currentWeatherDiv.innerHTML = `
+            <div class="current-header">
+                <div class="location-name">📍 ${locationName}</div>
+                <div class="temp-large">${Math.round(weatherData.temp)}°C</div>
+            </div>
+            <div class="weather-details">
+                <span>${condition}</span>
+                <span>🌬️ Wind: ${weatherData.wind} km/h</span>
+                <span>🕐 Updated: ${new Date(weatherData.time).toLocaleString()}</span>
+            </div>
+        `;
+        currentWeatherDiv.classList.add('active');
+    }
+
+    // Fetch HISTORICAL data from Open-Meteo
+    async function fetchHistoricalWeather(lat, lon, startDate, endDate) {
+        // Open-Meteo historical API
+        const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,windspeed_10m_max&timezone=auto`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.daily) {
+                return data.daily;
+            }
+            return null;
+        } catch (error) {
+            console.error("Historical data error:", error);
+            return null;
+        }
+    }
+
+    // Display historical stats and table
+    function displayHistoricalData(dailyData, locationName, startDate, endDate) {
+        if (!dailyData || !dailyData.time || dailyData.time.length === 0) {
+            resultsArea.innerHTML = `<div class="error-msg">No historical data available for ${locationName} from ${startDate} to ${endDate}. Try a different range.</div>`;
+            return;
+        }
+
+        const times = dailyData.time;
+        const maxTemps = dailyData.temperature_2m_max || [];
+        const minTemps = dailyData.temperature_2m_min || [];
+        const meanTemps = dailyData.temperature_2m_mean || [];
+        const precip = dailyData.precipitation_sum || [];
+        const winds = dailyData.windspeed_10m_max || [];
+
+        // Calculate statistics
+        let validMax = maxTemps.filter(t => t !== undefined && t !== null);
+        let validMin = minTemps.filter(t => t !== undefined && t !== null);
+        let validMean = meanTemps.filter(t => t !== undefined && t !== null);
+        let totalPrecip = precip.reduce((sum, p) => sum + (p || 0), 0);
+        let avgMaxTemp = validMax.length ? (validMax.reduce((a,b) => a+b,0) / validMax.length).toFixed(1) : "N/A";
+        let avgMinTemp = validMin.length ? (validMin.reduce((a,b) => a+b,0) / validMin.length).toFixed(1) : "N/A";
+        let highestTemp = validMax.length ? Math.max(...validMax).toFixed(1) : "N/A";
+        let lowestTemp = validMin.length ? Math.min(...validMin).toFixed(1) : "N/A";
+
+        // Build stats HTML
+        const statsHtml = `
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">📊 Avg High</div><div class="stat-value">${avgMaxTemp}°C</div></div>
+                <div class="stat-card"><div class="stat-label">📊 Avg Low</div><div class="stat-value">${avgMinTemp}°C</div></div>
+                <div class="stat-card"><div class="stat-label">🔥 Highest Temp</div><div class="stat-value">${highestTemp}°C</div></div>
+                <div class="stat-card"><div class="stat-label">❄️ Lowest Temp</div><div class="stat-value">${lowestTemp}°C</div></div>
+                <div class="stat-card"><div class="stat-label">💧 Total Precip</div><div class="stat-value">${totalPrecip.toFixed(1)} mm</div></div>
+            </div>
+        `;
+
+        // Build table rows (show up to 365 rows, or limit for performance)
+        let tableRows = "";
+        const maxRows = Math.min(times.length, 730); // Show max 2 years of daily data
+        for (let i = 0; i < maxRows; i++) {
+            const date = times[i];
+            const maxT = maxTemps[i] !== undefined ? maxTemps[i].toFixed(1) : "—";
+            const minT = minTemps[i] !== undefined ? minTemps[i].toFixed(1) : "—";
+            const meanT = meanTemps[i] !== undefined ? meanTemps[i].toFixed(1) : "—";
+            const prec = precip[i] !== undefined ? precip[i].toFixed(1) : "0";
+            tableRows += `
+                <tr>
+                    <td>${date}</td>
+                    <td>${maxT}°C</td>
+                    <td>${minT}°C</td>
+                    <td>${meanT}°C</td>
+                    <td>${prec} mm</td>
+                </tr>
+            `;
+        }
+
+        const tableHtml = `
+            <div class="history-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr><th>Date</th><th>Max Temp</th><th>Min Temp</th><th>Mean Temp</th><th>Precipitation</th></tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                        ${times.length > maxRows ? `<tr><td colspan="5" style="text-align:center;">... and ${times.length - maxRows} more days (showing most recent ${maxRows})</td></tr>` : ""}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        resultsArea.innerHTML = `
+            <h3 style="margin: 1rem 0 0.5rem;">📈 Climate Summary for ${locationName}</h3>
+            ${statsHtml}
+            <h3 style="margin: 1.5rem 0 0.8rem;">📅 Daily Historical Data (${startDate} to ${endDate})</h3>
+            ${tableHtml}
+        `;
+    }
+
+    // Show loading state
+    function showLoading() {
+        resultsArea.innerHTML = `<div class="loading">⏳ Loading historical data... This may take a few seconds.</div>`;
+    }
+
+    // Main search function
+    async function performSearch() {
+        // Clear previous
+        currentWeatherDiv.classList.remove('active');
+        resultsArea.innerHTML = "";
+        historicalSection.style.display = "none";
+
+        let lat = null, lon = null, locationName = "";
+
+        // Priority 1: coordinates
+        const coordText = coordInput.value.trim();
+        if (coordText) {
+            const coords = parseCoordinates(coordText);
+            if (coords) {
+                lat = coords.lat;
+                lon = coords.lon;
+                locationName = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            } else {
+                resultsArea.innerHTML = `<div class="error-msg">⚠️ Invalid coordinates. Use format: latitude, longitude (e.g., 40.7128, -74.0060)</div>`;
+                return;
+            }
+        } 
+        // Priority 2: city name
+        else {
+            const city = cityInput.value.trim();
+            if (!city) {
+                resultsArea.innerHTML = `<div class="error-msg">⚠️ Please enter a city name or coordinates.</div>`;
+                return;
+            }
+            const country = countryInput.value.trim();
+            resultsArea.innerHTML = `<div class="loading">🔍 Searching for ${city}...</div>`;
+            const geo = await geocodeCity(city, country);
+            if (geo) {
+                lat = geo.lat;
+                lon = geo.lon;
+                locationName = geo.name;
+            } else {
+                resultsArea.innerHTML = `<div class="error-msg">❌ Could not find "${city}". Try coordinates or a different city name.</div>`;
+                return;
+            }
+        }
+
+        // Save coordinates for historical queries
+        currentLat = lat;
+        currentLon = lon;
+        currentLocationName = locationName;
+
+        // Fetch and display current weather
+        resultsArea.innerHTML = `<div class="loading">🌡️ Fetching current weather for ${locationName}...</div>`;
+        const currentWeather = await fetchCurrentWeather(lat, lon, locationName);
+        displayCurrentWeather(locationName, currentWeather);
+
+        // Show historical section with default date range
+        historicalSection.style.display = "block";
+        resultsArea.innerHTML = `<div class="loading">📅 Select a date range and click "Load Historical Data" to view history from 1940 onward.</div>`;
+    }
+
+    // Fetch historical based on selected dates
+    async function fetchHistorical() {
+        if (!currentLat || !currentLon) {
+            resultsArea.innerHTML = `<div class="error-msg">⚠️ Please search for a location first.</div>`;
+            return;
+        }
+
+        let startDate = startDateInput.value;
+        let endDate = endDateInput.value;
+
+        if (!startDate || !endDate) {
+            resultsArea.innerHTML = `<div class="error-msg">⚠️ Please select both start and end dates.</div>`;
+            return;
+        }
+
+        // Validate date range
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (start > end) {
+            resultsArea.innerHTML = `<div class="error-msg">⚠️ Start date must be before end date.</div>`;
+            return;
+        }
+
+        // Enforce 1940 limit (API works from 1940)
+        const minDate = new Date("1940-01-01");
+        if (start < minDate) {
+            startDate = "1940-01-01";
+            startDateInput.value = startDate;
+        }
+
+        showLoading();
+        const historicalData = await fetchHistoricalWeather(currentLat, currentLon, startDate, endDate);
+        if (historicalData) {
+            displayHistoricalData(historicalData, currentLocationName, startDate, endDate);
+        } else {
+            resultsArea.innerHTML = `<div class="error-msg">⚠️ No historical data available for this date range. Try a different period (API covers 1940 to present).</div>`;
+        }
+    }
+
+    // Event listeners
+    searchBtn.addEventListener('click', performSearch);
+    fetchHistoricalBtn.addEventListener('click', fetchHistorical);
+
+    // Run initial search on page load (Paris default)
+    window.addEventListener('load', () => {
+        performSearch();
+    });
+</script>
+</body>
+</html>
